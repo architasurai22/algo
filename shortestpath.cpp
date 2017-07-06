@@ -116,3 +116,4 @@ int main(int argc, char *argv[])
     getSSP("g3.txt");
     return 0;
 }
+// -19
