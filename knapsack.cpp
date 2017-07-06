@@ -55,3 +55,6 @@ int main()
     cout<<"Optimal Solution: "<<cal[1][W]<<endl;
     return 0;
 }
+
+// 2493893
+// 4243395
