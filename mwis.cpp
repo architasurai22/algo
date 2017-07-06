@@ -47,3 +47,4 @@ int main()
     std::cout << "time taken is: " << timer.getMs() << " ms" << std::endl;
     return 0;
 }
+// 10100110
