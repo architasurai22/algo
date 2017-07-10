@@ -1,131 +1,82 @@
-// A C / C++ program for Dijkstra's single source shortest path algorithm.
-// The program is for adjacency matrix representation of the graph
-  
 #include <bits/stdc++.h>
-#include <stdio.h>
+#define SIZE 200
+
 using namespace std;
-  
-// Number of vertices in the graph
-#define V 201
-  
-// A utility function to find the vertex with minimum distance value, from
-// the set of vertices not yet included in shortest path tree
-int minDistance(int dist[], bool sptSet[])
+
+struct edge
 {
-   // Initialize min value
-   int min = INT_MAX, min_index;
-  
-   for (int v = 0; v < V; v++)
-     if (sptSet[v] == false && dist[v] <= min)
-         min = dist[v], min_index = v;
-  
-   return min_index;
-}
-  
-// A utility function to print the constructed distance array
-int printSolution(int dist[], int n)
+       int n2;
+       int weight;
+       edge *next;
+};
+
+void dijkstra(edge **g, long *dist, int s)
 {
-   printf("Vertex   Distance from Source\n");
-   //for (int i = 0; i < V; i++)
-      //printf("%d \t\t %d\n", i, dist[i]);
-    cout<<dist[7]<<endl;
-    cout<<dist[37]<<endl;
-    cout<<dist[59]<<endl;
-    cout<<dist[82]<<endl;
-    cout<<dist[99]<<endl;
-    cout<<dist[115]<<endl;
-    cout<<dist[133]<<endl;
-    cout<<dist[165]<<endl;
-    cout<<dist[188]<<endl;
-    cout<<dist[197]<<endl;
-}
-  
-// Funtion that implements Dijkstra's single source shortest path algorithm
-// for a graph represented using adjacency matrix representation
-void dijkstra(int graph[V][V], int src)
-{
-     int dist[V];     // The output array.  dist[i] will hold the shortest
-                      // distance from src to i
-  
-     bool sptSet[V]; // sptSet[i] will true if vertex i is included in shortest
-                     // path tree or shortest distance from src to i is finalized
-  
-     // Initialize all distances as INFINITE and stpSet[] as false
-     for (int i = 0; i < V; i++)
-        dist[i] = INT_MAX, sptSet[i] = false;
-  
-     // Distance of source vertex from itself is always 0
-     dist[src] = 0;
-  
-     // Find shortest path for all vertices
-     for (int count = 0; count < V-1; count++)
+     bool visited[SIZE+1];
+     for(int i=1; i<=SIZE; visited[i++]=false);
+     visited[s]=true;
+     dist[s]=0;
+     for(int i=2; i<=SIZE; i++)
      {
-       // Pick the minimum distance vertex from the set of vertices not
-       // yet processed. u is always equal to src in first iteration.
-       int u = minDistance(dist, sptSet);
-  
-       // Mark the picked vertex as processed
-       sptSet[u] = true;
-  
-       // Update dist value of the adjacent vertices of the picked vertex.
-       for (int v = 0; v < V; v++)
-  
-         // Update dist[v] only if is not in sptSet, there is an edge from 
-         // u to v, and total weight of path from src to  v through u is 
-         // smaller than current value of dist[v]
-         if (!sptSet[v] && graph[u][v] && dist[u] != INT_MAX 
-                                       && dist[u]+graph[u][v] < dist[v])
-            dist[v] = dist[u] + graph[u][v];
+             int n2, wt=1000000;
+             for(int i=1; i<=SIZE; i++)
+             {
+                     if(visited[i])
+                     {
+                             edge *temp=g[i];
+                             while(temp!=NULL)
+                             {
+                                     if(!visited[temp->n2] && (dist[i]+temp->weight)<wt)
+                                     {
+                                             n2=temp->n2;
+                                             wt=(dist[i]+temp->weight);
+                                     }
+                                     temp=temp->next;
+                             }
+                     }
+             }
+             visited[n2]=true;
+             dist[n2]=wt;
      }
-  
-     // print the constructed distance array
-     printSolution(dist, V);
 }
-  
-// driver program to test above function
-int main()
+
+int main(int argc, char *argv[])
 {
-   ifstream ifile;
-  int i =0,j,v,u,k,d;
-  int graph[V][V];
-  char temp[10];
-  memset(graph,0,sizeof(graph));
-  ifile.open("assignment_5.txt");
-    if (!ifile)
-    { 
-      cout<<"error\n";
-        return 1;
-    }
-    for (string line, word; getline(ifile, line); )
+    edge **g=new edge*[SIZE+1];
+    long dist[SIZE+1];
+    FILE *f=fopen("dijkstraData.txt","r");
+    for(int i=1; i<=SIZE; i++)
     {
-      istringstream iss(line);
-      iss >> word;
-      u = atoi(word.c_str());
-      //cout<<u<<" ";
-      while (iss >> word)
-      {
-          j=0;
-          for(k=0;word.at(k)!=','&&k<word.length();k++)
-            temp[j++]=word.at(k);
-          temp[j]='\0';
-          v = atoi(temp);
-          j=0;k++;
-          while(k<word.length())
-            temp[j++]=word.at(k++);
-          d = atoi(temp);
-          //cout<<temp<<" ";
-          //cout<<d<<" ";
-          graph[u-1][v-1]=d;
-          graph[v-1][u-1]=d;
-      }
-  }
-  /*for(i=0;i<V;i++)
-  {
-    for(j=0;j<V;j++)
-      cout<<graph[i][j]<<" ";
-    cout<<endl;
-  }*/
-  dijkstra(graph, 0);
+            g[i]=NULL;
+            dist[i]=1000000;
+    }
+    char *a=new char[400];
+    while(fgets(a,400,f))
+    {
+            int n1=atoi(a);
+            while(a[0]!='\t') a++;
+            a++;
+            while(true)
+            {
+                    int n2=atoi(a);
+                    while(a[0]!=',') a++;
+                    a++;
+                    int wt=atoi(a);
+                    edge *newedge=new edge;
+                    newedge->n2=n2;
+                    newedge->weight=wt;
+                    newedge->next=g[n1];
+                    g[n1]=newedge;
+                    while(a[0]!='\t' && strlen(a)>=3) a++;
+                    if(strlen(a)<3) break;
+                    a++;
+            }
+            a=new char[400];
+    }
+    fclose(f);
+    dijkstra(g,dist,1);
+    cout<<"Shortest Path Distances to the vertices 7,37,59,82,99,115,133,165,188,197:\n";
+    cout<<dist[7]<<","<<dist[37]<<","<<dist[59]<<","<<dist[82]<<","<<dist[99]<<","<<dist[115]<<","<<dist[133]<<","<<dist[165]<<","<<dist[188]<<","<<dist[197]<<endl;
+ 
     return 0;
 }
-//2599,2610,2947,2052,2367,2399,2029,2442,2505,3068
